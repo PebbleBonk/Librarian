@@ -10,3 +10,6 @@ config.py
 
 # Ignore local folder:
 local/
+
+# Ignore local envs:
+.env

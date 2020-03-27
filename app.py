@@ -7,17 +7,22 @@ from librarian.validators import validators, xvalidators
 import json
 import fire
 import sys
+import os
 
 
 def describe_crossvalidator_options():
     """ Print options for cross validators and their arguments
     """
+    print("* Currently supported options for",
+          "LABEL_ACTOR_CONFIG and DATA_ACTOR_CONFIG:*", )
     for tag, validator in validators.items():
         print("'"+tag+"':", validator.describe())
 
 def describe_validator_options():
     """ Print options for validators and their arguments
     """
+    print("* Currently supported options for",
+          "LABEL_VALID_CONFIG and DATA_VALID_CONFIG:*", )
     for tag, validator in validators.items():
         print("'"+tag+"'", validator.describe())
 
@@ -25,9 +30,27 @@ def describe_validator_options():
 def describe_actor_options():
     """ Print options for actors and their arguments
     """
+    print("* Currently supported options for CROSS_ACTOR_CONFIG: *")
     for tag, actor in actors.items():
         print("'"+tag+"'", actor.describe())
 
+def describe_input_options():
+    """ Print options for different inputs
+    """
+    print(
+    """* Currently supported options for: *
+    DATA_TYPE:
+        'file': Expects a file. Reads the request.files field
+        'json': Expects json dict. Reads the request.json field
+
+    DATA_TAG:
+        This value can be anything. It is used to extract the data from
+        the request, so it should match the data sent.
+        NOTE: if the DATA_TYPE is 'json', then the DATA_TAG can be left
+        empty to capture the entire content of request.json as data.
+
+    """
+    )
 
 def _load_env_json(tag):
     """ Load a configuration dict from environment variable
@@ -46,8 +69,14 @@ def _load_env_json(tag):
     return json.loads(data_str)
 
 
-def launch_with_env(debug=True):
+def launch_with_env():
     """ Launch Librarian service with parameters from environment variables
+
+    The environment variables are the following: DATA_TYPE, DATA_TAG,
+    CROSS_VALID_CONFIG, LABEL_VALID_CONFIG, DATA_VALID_CONFIG,
+    LABEL_ACTOR_CONFIG, DATA_ACTOR_CONFIG, DEBUG.
+
+    Note, that if any of these is not found, the service will fail to start.
 
     Args:
         debug (bool): start the service with Flask debugging (default:True)
@@ -56,17 +85,25 @@ def launch_with_env(debug=True):
         ValueError: if env variable with name tag is not defined
         TypeError: if data in environment variable is not valid json
     """
-    DATA_TYPE = os.environ.get("DATA_TYPE", "{}")
-    DATA_TAG = os.environ.get("DATA_TAG", "{}")
+    try:
+        DATA_TYPE = os.environ["DATA_TYPE"]
+        DATA_TAG = os.environ["DATA_TAG"]
 
-    CROSS_VALID_CONFIG =  _load_env_json("CROSS_VALID_CONFIG")
-    LABEL_VALID_CONFIG =  _load_env_json("LABEL_VALID_CONFIG")
-    LABEL_ACTOR_CONFIG =  _load_env_json("LABEL_ACTOR_CONFIG")
-    DATA_VALID_CONFIG =  _load_env_json("DATA_VALID_CONFIG")
-    DATA_ACTOR_CONFIG =  _load_env_json("DATA_ACTOR_CONFIG")
+        CROSS_VALID_CONFIG =  _load_env_json("CROSS_VALID_CONFIG")
+        LABEL_VALID_CONFIG =  _load_env_json("LABEL_VALID_CONFIG")
+        LABEL_ACTOR_CONFIG =  _load_env_json("LABEL_ACTOR_CONFIG")
+        DATA_VALID_CONFIG =  _load_env_json("DATA_VALID_CONFIG")
+        DATA_ACTOR_CONFIG =  _load_env_json("DATA_ACTOR_CONFIG")
+
+        DEBUG =  os.environ["DEBUG"]
+    except KeyError as e:
+        print("Librarian failed to start:")
+        print("\tThe following environment variable is not set:", str(e))
+        print("Exiting ...")
+        return
 
     launch(DATA_TYPE, DATA_TAG, CROSS_VALID_CONFIG, LABEL_VALID_CONFIG,
-           DATA_VALID_CONFIG, LABEL_ACTOR_CONFIG, DATA_ACTOR_CONFIG, debug)
+           DATA_VALID_CONFIG, LABEL_ACTOR_CONFIG, DATA_ACTOR_CONFIG, DEBUG)
 
 
 def launch_with_config_file(file, debug=True):
@@ -153,4 +190,16 @@ def launch(DATA_TYPE, DATA_TAG, CROSS_VALID_CONFIG, LABEL_VALID_CONFIG,
     )
 
 if __name__ == "__main__":
-    fire.Fire()
+    # By default, if no command line arguments are provided, run w_env:
+    if len(sys.argv) == 1:
+        launch_with_env();
+    else:
+        fire.Fire({
+            "launch_w_json": launch_with_config_file,
+            "launch_w_env": launch_with_env,
+            "launch_default": launch_with_defaults,
+            "describe_input": describe_input_options,
+            "describe_actors": describe_actor_options,
+            "describe_validators": describe_validator_options,
+            "describe_xvalidators": describe_crossvalidator_options,
+        })

@@ -11,6 +11,7 @@ class DummyCrossValidator(Validator):
         Always True
     """
     def __init__(self):
+        self.description = "Does nothing. Passes everything."
         pass
 
     def __call__(self, x, y):
@@ -28,6 +29,7 @@ class MacthFileNames:
             True if both are accessible and identical
     """
     def __init__(self):
+        self.description = "Checks for matching filenames."
         pass
 
     def __call__(self, x, y):

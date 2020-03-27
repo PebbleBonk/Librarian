@@ -2,6 +2,7 @@ from librarian.librarian import launch_librarian
 
 from librarian.actors import actors
 from librarian.validators import validators, xvalidators
+from librarian.exceptions import EnvironmentVariableLoadException
 
 # import config
 import json
@@ -63,10 +64,16 @@ def _load_env_json(tag):
 
     Raises:
         ValueError: if env variable with name tag is not defined
-        TypeError: if data in environment variable is not valid json
+        EnvironmentVariableLoadException if data is not valid json
     """
-    data_str = os.environ[tag]
-    return json.loads(data_str)
+    try:
+        data_str = os.environ[tag]
+        data = json.loads(data_str)
+    except json.decoder.JSONDecodeError:
+        raise EnvironmentVariableLoadException(
+            f"Failed to load json from env var: {tag}"
+        )
+    return data
 
 
 def launch_with_env():
@@ -99,6 +106,11 @@ def launch_with_env():
     except KeyError as e:
         print("Librarian failed to start:")
         print("\tThe following environment variable is not set:", str(e))
+        print("Exiting ...")
+        return
+    except EnvironmentVariableLoadException as e:
+        print("Librarian failed to start:")
+        print("\t"+str(e))
         print("Exiting ...")
         return
 

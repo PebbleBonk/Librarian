@@ -1,0 +1,12 @@
+# Ignore dev files:
+.vscode
+
+# Ignore Python related files:
+env/
+__pycache__/
+
+# Ignore the local config file:
+config.py
+
+# Ignore local folder:
+local/

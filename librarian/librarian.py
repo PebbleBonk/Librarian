@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, render_template
 from flask import abort, redirect, send_from_directory
 from librarian.validators.exceptions import ValidationError
 import json
+import os
 from bson.objectid import ObjectId
 
 
@@ -76,11 +77,15 @@ def launch_librarian(datatype, datatag,
     print("[CROSS VALIDATOR]:", str(cross_validator))
     print("[LABEL ACTOR]:", str(label_actor))
     print("[DATA ACTOR]:", str(data_actor))
+    print("[DEBUG]:", debug)
+
+    # HACK: try to get the port from env. Some services supplies it:
+    port = os.environ.get("PORT", 5000)
 
     if debug:
-        app.run(host="0.0.0.0", debug=True)
+        app.run(host="0.0.0.0", debug=True, port=port)
     else:
-        app.run()
+        app.run(port=port)
 
 
 def parse_url_args(args):

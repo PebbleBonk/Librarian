@@ -6,11 +6,10 @@ import os
 from bson.objectid import ObjectId
 
 
-def launch_librarian(datatype, datatag,
+def create_librarian(datatype, datatag,
                      label_validator, label_actor,
                      data_validator, data_actor,
-                     cross_validator, debug=True):
-
+                     cross_validator):
     app = Flask(__name__)
 
 
@@ -71,21 +70,15 @@ def launch_librarian(datatype, datatag,
         # Yo momma such a go-getter that ...
         abort(501, 'API call not implemented')
 
-    print("\n\n~ Starting a Librarian instance. ~")
+    print("\n\n~ Created a Librarian instance. ~")
     print("[LABEL VALIDATOR]:", str(label_validator))
     print("[DATA VALIDATOR]:", str(data_validator))
     print("[CROSS VALIDATOR]:", str(cross_validator))
     print("[LABEL ACTOR]:", str(label_actor))
     print("[DATA ACTOR]:", str(data_actor))
-    print("[DEBUG]:", debug)
 
-    # HACK: try to get the port from env. Some services supplies it:
-    port = os.environ.get("PORT", 5000)
+    return app
 
-    if debug:
-        app.run(host="0.0.0.0", debug=True, port=port)
-    else:
-        app.run(port=port)
 
 
 def parse_url_args(args):

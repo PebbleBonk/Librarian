@@ -1,5 +1,6 @@
 from librarian.actors.actor import Actor
 import json
+from PIL import Image
 import os
 
 
@@ -43,6 +44,24 @@ class FileActor(Actor):
         data.save(os.path.join(self.directory, data.filename))
         return "File saved succesfully"
 
+
+class ImageActor(Actor):
+    """ Saves object to a local image file
+
+        Args:
+            directory (str): Directory to which the files are saved. Will
+                be created if doesn't exist
+    """
+    def __init__(self, directory):
+        super().__init__()
+        self.description = "Saves object ot a local image file"
+        self.directory = directory
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+
+    def act(self, data, uid):
+        im = Image.open(data)
+        im.save(os.path.join(self.directory, uid+'.jpg'))
 
 
 class JsonActor(Actor):

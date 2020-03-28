@@ -10,4 +10,5 @@ actors = {
     'json': local_actors.JsonActor,
     'none': local_actors.DummyActor,
     'print': local_actors.PrinterActor,
+    'image': local_actors.ImageActor,
 }

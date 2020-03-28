@@ -1,1 +1,1 @@
-web: gunicorn librarian:create
+web: gunicorn librarian_cli:create

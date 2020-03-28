@@ -70,7 +70,7 @@ def create(dotenv=None, json=None, test=False):
 
     elif json:
         try:
-            config_kwargs = utils.load_configs_from_json()
+            config_kwargs = utils.load_configs_from_json(json)
         except ValueError as e:
             _fail_config(f'Defined config json file not found: {e}')
             return

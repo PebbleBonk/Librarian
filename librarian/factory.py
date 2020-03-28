@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, render_template
 from flask import abort, redirect, send_from_directory
 from flask_cors import CORS
+from werkzeug.datastructures import FileStorage
 from librarian.validators.exceptions import ValidationError
 import json
 import os
@@ -29,10 +30,13 @@ def create_librarian(datatype, datatag,
         if datatype=="file" and request.files is not None:
             data = request.files.get(datatag, 0)
         elif datatype=='base64' and request.form:
-            data = request.form[datatag]
+            raw64 = request.form[datatag]
             # Make sure we don't have any nasty tags:
-            data = data.split(',')[-1]
-            data = BytesIO(base64.b64decode(data))
+            raw64 = raw64.split(',')[-1]
+            data = FileStorage(
+                stream=BytesIO(base64.b64decode(raw64)),
+                filename=labels.get('filename', 'input')
+            )
         elif datatype=="json" and request.json is not None:
             # default value of no data tag: get full json from request:
             data = request.json.get(datatag, 0) if datatag else request.json

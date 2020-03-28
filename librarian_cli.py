@@ -79,17 +79,16 @@ def create(dotenv=None, json=None, test=False):
         An app ready to run.
 
     """
-    print(dotenv, json, test)
     if test:
         config_kwargs = utils.load_test_configs()
 
     elif json:
         try:
             config_kwargs = utils.load_configs_from_json(json)
-        except ValueError as e:
+        except FileNotFoundError as e:
             _fail_config(f'Defined config json file not found: {e}')
             return
-        except TypeError as e:
+        except ValueError as e:
             _fail_config(f'Defined config json is not valid: {e}')
             return
 

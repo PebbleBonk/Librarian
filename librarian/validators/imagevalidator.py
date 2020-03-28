@@ -34,5 +34,5 @@ class ImageValidator(Validator):
         try:
             im.verify()
         except Exception as e:
-            raise ValidationError("Could not verify the image: ",+str(e))
+            raise ValidationError("Could not verify the image: "+str(e))
 

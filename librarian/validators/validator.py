@@ -37,6 +37,7 @@ class DummyValidator(Validator):
     Great for debugging. Takes no arguments.
     """
     def __init__(self):
+        self.description = "Does nothing. Passes everything."
         super().__init__()
 
     def __call__(self, obj):

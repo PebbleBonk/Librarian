@@ -87,7 +87,7 @@ class JsonActor(Actor):
 
 
         with open(self.jsonfile, 'w') as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=4)
         return "Json saved successfully"
 
 

@@ -30,6 +30,24 @@ def describe(validators=False, actors=False, inputs=False, xvalidators=False):
 
 
 def launch(dotenv=None, json=None, test=False, port=5000, debug=True):
+    """ Launches a Librarian instance as a flask app
+
+    Provides different options to load to configuration for the instance:
+    using environmental variables, using a .env file, using a config json
+    and using a dummy setup.
+
+    If none of the config options are provided, the app will be created
+    with environmental variables.
+
+    Args:
+        dotenv (str): .env file to load for configuration
+        json   (str): json file to load for configuration
+        test  (bool): create the service with dummy setup
+        port   (int): Port to assign to the created Flask app
+        debug (bool): Start the Flask app in debug mode
+
+    """
+
     app = create(dotenv, json, test)
 
     # Something went wrong during creation:
@@ -59,9 +77,6 @@ def create(dotenv=None, json=None, test=False):
 
     Returns (flask.app):
         An app ready to run.
-
-    Raises:
-        InitialisationError: if initialisation fails.
 
     """
     print(dotenv, json, test)

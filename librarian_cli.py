@@ -60,7 +60,7 @@ def launch(dotenv=None, json=None, test=False, port=5000, debug=True):
         app.run(port=port)
 
 
-def create(dotenv=None, json=None, test=False):
+def create(dotenv=False, json=False, test=False):
     """ Creates a Librarian instance as a flask app
 
     Provides different options to load to configuration for the instance:

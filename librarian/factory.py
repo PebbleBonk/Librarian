@@ -42,11 +42,12 @@ def create_librarian(datatype, datatag,
         return redirect('http://github.com/oikone', code=302)
 
 
-    @app.route('/put', methods=['POST'])
+    @app.route('/put', methods=['POST', 'OPTIONS'])
     def putter():
         # Put-put golf:¨
         if request.method == "OPTIONS": # CORS preflight
             return _build_cors_prelight_response()
+
         labels = parse_url_args(request.args)
         if datatype=="file" and request.files is not None:
             data = request.files.get(datatag, 0)
@@ -64,6 +65,7 @@ def create_librarian(datatype, datatag,
         else:
             print("[INPUT ERROR]: Unsupported data:", datatype, file=sys.stderr)
             _abort(406, "Invalid data type")
+
 
         if not data:
             print("[INPUT ERROR]: No data", file=sys.stderr)
@@ -96,12 +98,14 @@ def create_librarian(datatype, datatag,
             print("[DATA ACTOR ERROR]:", str(e), file=sys.stderr)
             _abort(416, "Error occurred during DATA actor: "+str(e))
         # 7. Return success
+
         resp = _corsify_actual_response(make_response(
             jsonify(
                 'Lables and data processed successfully:\n' +
                 f'\tLabel response: {label_actor_response}\n' +
                 f'\tData response: {data_actor_response}'
         ), 200))
+        return resp
 
 
     @app.route('/get', methods=['GET'])

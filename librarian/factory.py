@@ -1,9 +1,10 @@
 from flask import Flask, jsonify, request, render_template
-from flask import abort, redirect, send_from_directory
+from flask import abort, redirect, send_from_directory, make_response
 from flask_cors import CORS
 from werkzeug.datastructures import FileStorage
 from librarian.validators.exceptions import ValidationError
 import json
+import sys
 import os
 from io import BytesIO
 import base64
@@ -17,6 +18,9 @@ def create_librarian(datatype, datatag,
     app = Flask(__name__)
     CORS(app)
 
+    def _abort(code, msg):
+        abort(make_response(jsonify(message=msg), code))
+
     @app.route('/')
     def index():
         return redirect('http://github.com/oikone', code=302)
@@ -26,7 +30,6 @@ def create_librarian(datatype, datatag,
     def putter():
         # Put-put golf:
         labels = parse_url_args(request.args)
-
         if datatype=="file" and request.files is not None:
             data = request.files.get(datatag, 0)
         elif datatype=='base64' and request.form:
@@ -41,10 +44,12 @@ def create_librarian(datatype, datatag,
             # default value of no data tag: get full json from request:
             data = request.json.get(datatag, 0) if datatag else request.json
         else:
-            abort(406, "Invalid data type")
+            print("[INPUT ERROR]: Unsupported data:", datatype, file=sys.stderr)
+            _abort(406, "Invalid data type")
 
         if not data:
-            abort(406, "Data tag not found")
+            print("[INPUT ERROR]: No data", file=sys.stderr)
+            _abort(406, "Data tag not found")
 
         try:
             # 1. Run label validator on label(s)
@@ -54,7 +59,8 @@ def create_librarian(datatype, datatag,
             # 3. Run cross validator for label(s) and data
             cross_validator(labels, data)
         except ValidationError as e:
-            abort(415, str(e))
+            print("[VALIDATION ERROR]:", str(e), file=sys.stderr)
+            _abort(415, str(e))
 
         # if everything is ok, create a unique ID:
         uid = str(ObjectId())
@@ -64,11 +70,13 @@ def create_librarian(datatype, datatag,
             label_actor_response = label_actor.act(labels, uid)
             # 6. Run data action
         except Exception as e:
-            abort(415, "Error occurred during LABEL actor: "+str(e))
+            print("[LABEL ACTOR ERROR]:", str(e), file=sys.stderr)
+            _abort(415, "Error occurred during LABEL actor: "+str(e))
         try:
             data_actor_response = data_actor.act(data, uid)
         except Exception as e:
-            abort(415, "Error occurred during DATA actor: "+str(e))
+            print("[DATA ACTOR ERROR]:", str(e), file=sys.stderr)
+            _abort(416, "Error occurred during DATA actor: "+str(e))
         # 7. Return success
         return jsonify(
             'Lables and data processed successfully:\n' +
@@ -106,6 +114,7 @@ def parse_url_args(args):
             pass
         try:
             parsed[k] = float(v)
+            continue
         except ValueError:
             pass
         # Then try explicit bool conversion:

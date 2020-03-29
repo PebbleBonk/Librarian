@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, render_template
 from flask import abort, redirect, send_from_directory, make_response
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from werkzeug.datastructures import FileStorage
 from librarian.validators.exceptions import ValidationError
 import json
@@ -17,7 +17,7 @@ def create_librarian(datatype, datatag,
                      cross_validator):
     app = Flask(__name__)
     CORS(app)
-
+    app.config['CORS_HEADERS'] = 'Content-Type'
     def _abort(code, msg):
         abort(make_response(jsonify(message=msg), code))
 
@@ -27,6 +27,7 @@ def create_librarian(datatype, datatag,
 
 
     @app.route('/put', methods=['POST'])
+    @cross_origin()
     def putter():
         # Put-put golf:
         labels = parse_url_args(request.args)

@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, render_template
 from flask import abort, redirect, send_from_directory, make_response
-from flask_cors import CORS
+# from flask_cors import CORS, cross_origin
 from werkzeug.datastructures import FileStorage
 from librarian.validators.exceptions import ValidationError
 import json
@@ -16,19 +16,38 @@ def create_librarian(datatype, datatag,
                      data_validator, data_actor,
                      cross_validator):
     app = Flask(__name__)
-    CORS(app)
+    # CORS(app)
+    app.config['CORS_HEADERS'] = 'Content-Type'
+
+    def _build_cors_prelight_response():
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "*")
+        response.headers.add("Access-Control-Allow-Methods", "*")
+        return response
+
+    def _corsify_actual_response(response):
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        return response
 
     def _abort(code, msg):
-        abort(make_response(jsonify(message=msg), code))
+        abort(
+            _corsify_actual_response(
+                make_response(jsonify(message=msg), code)
+            )
+        )
 
     @app.route('/')
     def index():
         return redirect('http://github.com/oikone', code=302)
 
 
-    @app.route('/put', methods=['POST'])
+    @app.route('/put', methods=['POST', 'OPTIONS'])
     def putter():
-        # Put-put golf:
+        # Put-put golf:¨
+        if request.method == "OPTIONS": # CORS preflight
+            return _build_cors_prelight_response()
+
         labels = parse_url_args(request.args)
         if datatype=="file" and request.files is not None:
             data = request.files.get(datatag, 0)
@@ -46,6 +65,7 @@ def create_librarian(datatype, datatag,
         else:
             print("[INPUT ERROR]: Unsupported data:", datatype, file=sys.stderr)
             _abort(406, "Invalid data type")
+
 
         if not data:
             print("[INPUT ERROR]: No data", file=sys.stderr)
@@ -78,11 +98,14 @@ def create_librarian(datatype, datatag,
             print("[DATA ACTOR ERROR]:", str(e), file=sys.stderr)
             _abort(416, "Error occurred during DATA actor: "+str(e))
         # 7. Return success
-        return jsonify(
-            'Lables and data processed successfully:\n' +
-            f'\tLabel response: {label_actor_response}\n' +
-            f'\tData response: {data_actor_response}'
-        ), 200
+
+        resp = _corsify_actual_response(make_response(
+            jsonify(
+                'Lables and data processed successfully:\n' +
+                f'\tLabel response: {label_actor_response}\n' +
+                f'\tData response: {data_actor_response}'
+        ), 200))
+        return resp
 
 
     @app.route('/get', methods=['GET'])

@@ -42,7 +42,7 @@ def configure_actor(config):
 
     # Compose a validator using multiple validators:
     else:
-        composite = actors.CompositeActor()
+        composite = actor.CompositeActor()
         for c in config:
             tag = c['actor']
             args = c['args']

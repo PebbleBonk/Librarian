@@ -46,15 +46,17 @@ def configure_validator(config):
         config = config[0]
         tag = config['validator']
         args = config['args']
-        return validators[tag](*args)
+        kwargs = config.get('kwargs', {})
+        return validators[tag](*args, **kwargs)
 
     # Compose a validator using multiple validators:
     else:
         composite = validator.CompositeValidator()
         for c in config:
             tag = c['validator']
-            args = c['args']
-            composite += validators[tag](*args)
+            args = c.get('args',[])
+            kwargs = c.get('kwargs', {})
+            composite += validators[tag](*args, **kwargs)
         return composite
 
 
@@ -81,15 +83,17 @@ def configure_xvalidator(config):
     elif len(config) == 1:
         config = config[0]
         tag = config['validator']
-        args = config['args']
-        return xvalidators[tag](*args)
+        args = config.get('args',[])
+        kwargs = config.get('kwargs', {})
+        return xvalidators[tag](*args, **kwargs)
 
     # Compose a validator using multiple validators:
     else:
         composite = crossvalidators.CompositeCrossValidator()
         for c in config:
             tag = c['validator']
-            args = c['args']
-            composite += xvalidators[tag](*args)
+            args = c.get('args',[])
+            kwargs = c.get('kwargs', {})
+            composite += xvalidators[tag](*args, **kwargs)
         return composite
 

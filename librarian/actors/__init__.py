@@ -37,14 +37,16 @@ def configure_actor(config):
     elif len(config) == 1:
         config = config[0]
         tag = config['actor']
-        args = config['args']
-        return actors[tag](*args)
+        args = config.get('args',[])
+        kwargs = config.get('kwargs', {})
+        return actors[tag](*args, **kwargs)
 
     # Compose a validator using multiple validators:
     else:
         composite = actor.CompositeActor()
         for c in config:
             tag = c['actor']
-            args = c['args']
-            composite += actors[tag](*args)
+            args = c.get('args',[])
+            kwargs = c.get('kwargs', {})
+            composite += actors[tag](*args, **kwargs)
         return composite

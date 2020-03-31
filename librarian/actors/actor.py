@@ -22,3 +22,27 @@ class Actor:
     @classmethod
     def describe(cls):
         return ''.join([cls.__name__, '\n', cls.__doc__.strip('\n')])
+
+
+class CompositeActor(Actor):
+    """ Compose a combination of several actors
+
+        Checks the object agains every actors
+
+        Args:
+            *validators: actors to compose the actor from
+    """
+    def __init__(self, *actors):
+        self.actors = actors
+
+    def  __add__(self, other):
+        self.actors.append(other)
+
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        else:
+            return self.__add__(other)
+
+    def __call__(self, obj):
+        return [actor.act(obj) for actor in self.actors]

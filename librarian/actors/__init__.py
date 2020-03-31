@@ -12,3 +12,38 @@ actors = {
     'print': local_actors.PrinterActor,
     'image': local_actors.ImageActor,
 }
+
+
+def configure_actor(config):
+    """ Create an actor using configuration
+
+        All the different actors given in config are composed into
+        one single Actor. The actions are done in order given.
+
+        Args:
+            config (list): List of config dicts to create the actor
+
+        Returns (Actor):
+            Actor class to act on data.
+
+        Raises:
+            KeyError if configuration key is not found in options.
+    """
+    # No validato used, return just a dummy:
+    if len(config) < 0:
+        return local_actors.DummyActor()
+
+    # Single validator
+    elif len(config) == 1:
+        tag = config['validator']
+        args = config['args']
+        return actors[tag](*args)
+
+    # Compose a validator using multiple validators:
+    else:
+        composite = actors.CompositeActor()
+        for actor in config:
+            tag = config['validator']
+            args = config['args']
+            composite += actors[tag](*args)
+        return composite

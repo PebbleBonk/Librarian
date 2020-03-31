@@ -13,7 +13,7 @@ class KeyValidator(Validator):
             Whether the validation was successful
     """
     def __init__(self, keys: list):
-        if not isinstance(validation_dict, list):
+        if not isinstance(keys, list):
             raise InitialisationError("Invalid arguments")
         super().__init__()
         self.keys = set(keys)

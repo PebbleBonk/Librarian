@@ -1,5 +1,5 @@
-from librarian.validators import validators, xvalidators
-from librarian.actors import actors
+from librarian import validators
+from librarian import actors
 from librarian import exceptions as libex
 from librarian import describers
 from librarian import factory
@@ -17,7 +17,7 @@ def describe(validators=False, actors=False, inputs=False, xvalidators=False):
     """ Print information of options and arguments """
     if not (validators or actors or inputs or xvalidators):
         # TODO: Better default print
-        print("Options: 'validators', 'actors', 'inputs")
+        print("Options: 'xvalidators', 'validators', 'actors', 'inputs")
     if inputs:
         describers.describe_input_options()
     if validators:
@@ -104,65 +104,100 @@ def create(dotenv=False, json=False, test=False):
             _fail_config(f'Error loading enfironment configs: {e}')
             return
 
-    creating_kwargs = utils.parse_config_dicts(**config_kwargs)
-    return _create(**creating_kwargs)
+    # creating_kwargs = utils.parse_config_dicts(**config_kwargs)
+    return _createnew(**config_kwargs)
 
 
-
-
-def _create(DATA_TYPE, DATA_TAG, CROSS_VALID_TYPE, CROSS_VALID_ARGS,
-    LABEL_VALID_TYPE, LABEL_VALID_ARGS, DATA_VALID_TYPE, DATA_VALID_ARGS,
-    LABEL_ACTOR_TYPE, LABEL_ACTOR_ARGS, DATA_ACTOR_TYPE, DATA_ACTOR_ARGS):
-    """ Create a Librarian service instance with config tags
-
-    Initialises the validators and actors, passes them to factory
-
-    Args:
-        DATA_TYPE (str): Type of data expected to be received
-        DATA_TAG  (str): Tag under which the data is found in received data
-        CROSS_VALID_TYPE  (str): Type of cross validator to use
-        CROSS_VALID_ARGS (list): Arguments to pass to cross validator init
-        LABEL_VALID_TYPE  (str): Type of label validator to use
-        LABEL_VALID_ARGS (list): Arguments to pass to label validator init
-        DATA_VALID_TYPE   (str): Type of data validator to use
-        DATA_VALID_ARGS  (list): Arguments to pass to data validator init
-        LABEL_ACTOR_TYPE  (str): Type of label actor to use
-        LABEL_ACTOR_ARGS (list): Arguments to pass to label actor init
-        DATA_ACTOR_TYPE   (str):  Type of data actor to use
-        DATA_ACTOR_ARGS  (list): Arguments to pass to data actor init
-
-    Returns (flask.app):
-        An app ready to run.
-
-    Raises:
-        InitialisationError: if initialisation fails.
+def _createnew(INPUT_CONFIG, CROSS_VALID_CONFIG, LABEL_VALID_CONFIG,
+               DATA_VALID_CONFIG, LABEL_ACTOR_CONFIG, DATA_ACTOR_CONFIG):
+    """ Better creation of stuffs
     """
-
-    # Setup validators and actors:
     try:
-        lbl_valid = validators[LABEL_VALID_TYPE](*LABEL_VALID_ARGS)
-        data_valid = validators[DATA_VALID_TYPE](*DATA_VALID_ARGS)
-        cross_valid = xvalidators[CROSS_VALID_TYPE](*CROSS_VALID_ARGS)
+        data_type = INPUT_CONFIG["type"],
+        data_tag =  INPUT_CONFIG["tag"],
+    except KeyError as e:
+        raise libex.InitialisationError(
+            f"Invalid Input initialisation: {e}"
+        )
+
+    try:
+        lbl_valid = validators.configure_validator(LABEL_VALID_CONFIG)
+        data_valid = validators.configure_validator(DATA_VALID_CONFIG)
+        cross_valid = validators.configure_xvalidator(CROSS_VALID_CONFIG)
     except TypeError as e:
         raise libex.InitialisationError(
             f"Invalid Validator initialisation: {e}"
         )
 
     try:
-        lbl_actor = actors[LABEL_ACTOR_TYPE](*LABEL_ACTOR_ARGS)
-        data_actor = actors[DATA_ACTOR_TYPE](*DATA_ACTOR_ARGS)
+        lbl_actor = actors.configure_actor(LABEL_ACTOR_CONFIG)
+        data_actor = actors.configure_actor(DATA_ACTOR_CONFIG)
     except TypeError as e:
         raise libex.InitialisationError(
             f"Invalid Actor initialisation: {e}"
         )
 
-
     return factory.create_librarian(
-        datatype=DATA_TYPE, datatag=DATA_TAG,
+        datatype=data_type, datatag=data_tag,
         label_validator=lbl_valid, label_actor=lbl_actor,
         data_validator=data_valid, data_actor=data_actor,
         cross_validator=cross_valid
     )
+
+
+# def _create(DATA_TYPE, DATA_TAG, CROSS_VALID_TYPE, CROSS_VALID_ARGS,
+#     LABEL_VALID_TYPE, LABEL_VALID_ARGS, DATA_VALID_TYPE, DATA_VALID_ARGS,
+#     LABEL_ACTOR_TYPE, LABEL_ACTOR_ARGS, DATA_ACTOR_TYPE, DATA_ACTOR_ARGS):
+#     """ Create a Librarian service instance with config tags
+
+#     Initialises the validators and actors, passes them to factory
+
+#     Args:
+#         DATA_TYPE (str): Type of data expected to be received
+#         DATA_TAG  (str): Tag under which the data is found in received data
+#         CROSS_VALID_TYPE  (str): Type of cross validator to use
+#         CROSS_VALID_ARGS (list): Arguments to pass to cross validator init
+#         LABEL_VALID_TYPE  (str): Type of label validator to use
+#         LABEL_VALID_ARGS (list): Arguments to pass to label validator init
+#         DATA_VALID_TYPE   (str): Type of data validator to use
+#         DATA_VALID_ARGS  (list): Arguments to pass to data validator init
+#         LABEL_ACTOR_TYPE  (str): Type of label actor to use
+#         LABEL_ACTOR_ARGS (list): Arguments to pass to label actor init
+#         DATA_ACTOR_TYPE   (str):  Type of data actor to use
+#         DATA_ACTOR_ARGS  (list): Arguments to pass to data actor init
+
+#     Returns (flask.app):
+#         An app ready to run.
+
+#     Raises:
+#         InitialisationError: if initialisation fails.
+#     """
+
+#     # Setup validators and actors:
+#     try:
+#         lbl_valid = validators[LABEL_VALID_TYPE](*LABEL_VALID_ARGS)
+#         data_valid = validators[DATA_VALID_TYPE](*DATA_VALID_ARGS)
+#         cross_valid = xvalidators[CROSS_VALID_TYPE](*CROSS_VALID_ARGS)
+#     except TypeError as e:
+#         raise libex.InitialisationError(
+#             f"Invalid Validator initialisation: {e}"
+#         )
+
+#     try:
+#         lbl_actor = actors[LABEL_ACTOR_TYPE](*LABEL_ACTOR_ARGS)
+#         data_actor = actors[DATA_ACTOR_TYPE](*DATA_ACTOR_ARGS)
+#     except TypeError as e:
+#         raise libex.InitialisationError(
+#             f"Invalid Actor initialisation: {e}"
+#         )
+
+
+#     return factory.create_librarian(
+#         datatype=DATA_TYPE, datatag=DATA_TAG,
+#         label_validator=lbl_valid, label_actor=lbl_actor,
+#         data_validator=data_valid, data_actor=data_actor,
+#         cross_validator=cross_valid
+#     )
 
 
 def _fail_config(message):

@@ -36,6 +36,7 @@ def describe_input_options():
     DATA_TYPE:
         'file': Expects a file. Reads the request.files field
         'json': Expects json dict. Reads the request.json field
+        'base64': Expects base64 encoded string. Reads the request.form field
 
     DATA_TAG:
         This value can be anything. It is used to extract the data from

@@ -88,17 +88,18 @@ def create_librarian(datatype, datatag,
         # 5. Run label action
         try:
             label_actor_response = label_actor.act(labels, uid)
-            # 6. Run data action
         except Exception as e:
             print("[LABEL ACTOR ERROR]:", str(e), file=sys.stderr)
             _abort(415, "Error occurred during LABEL actor: "+str(e))
+
+        # 6. Run data action
         try:
             data_actor_response = data_actor.act(data, uid)
         except Exception as e:
             print("[DATA ACTOR ERROR]:", str(e), file=sys.stderr)
             _abort(416, "Error occurred during DATA actor: "+str(e))
-        # 7. Return success
 
+        # 7. Return success
         resp = _corsify_actual_response(make_response(
             jsonify(
                 'Lables and data processed successfully:\n' +
@@ -114,11 +115,11 @@ def create_librarian(datatype, datatag,
         abort(501, 'API call not implemented')
 
     print("\n\n~ Created a Librarian instance. ~")
-    print("[LABEL VALIDATOR]:", str(label_validator))
-    print("[DATA VALIDATOR]:", str(data_validator))
-    print("[CROSS VALIDATOR]:", str(cross_validator))
-    print("[LABEL ACTOR]:", str(label_actor))
-    print("[DATA ACTOR]:", str(data_actor))
+    print("[LABEL VALIDATOR]:", str(label_validator), '\n')
+    print("[DATA VALIDATOR]:", str(data_validator), '\n')
+    print("[CROSS VALIDATOR]:", str(cross_validator), '\n')
+    print("[LABEL ACTOR]:", str(label_actor), '\n')
+    print("[DATA ACTOR]:", str(data_actor), '\n')
 
     return app
 

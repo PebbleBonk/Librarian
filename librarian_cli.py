@@ -17,7 +17,7 @@ def describe(validators=False, actors=False, inputs=False, xvalidators=False):
     """ Print information of options and arguments """
     if not (validators or actors or inputs or xvalidators):
         # TODO: Better default print
-        print("Options: 'validators', 'actors', 'inputs")
+        print("Options: 'xvalidators', 'validators', 'actors', 'inputs")
     if inputs:
         describers.describe_input_options()
     if validators:

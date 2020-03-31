@@ -14,10 +14,10 @@ class Validator:
         raise NotImplementedError("Inherited method not implemented")
 
     def __str__(self):
-        setup = self.__class__.__name__ +" with setup:"
+        string = self.__class__.__name__+':'
         for var, val in vars(self).items():
-            setup += f"\n\t{var}: {val}"
-        return setup
+            string += f"\n\t{var}: {val}"
+        return string
 
     def __repr__(self):
         return str(self).replace('\n', ', ').replace('\t', '')

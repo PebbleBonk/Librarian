@@ -12,6 +12,7 @@ class DummyCrossValidator(Validator):
     """
     def __init__(self):
         self.description = "Does nothing. Passes everything."
+        super().__init__()
         pass
 
     def __call__(self, x, y):
@@ -30,6 +31,7 @@ class MacthFileNames:
     """
     def __init__(self):
         self.description = "Checks for matching filenames."
+        super().__init__()
         pass
 
     def __call__(self, x, y):
@@ -37,3 +39,12 @@ class MacthFileNames:
         fn2 = y.get('filename', False)
 
         return (fn1 and f2) and fn1 == fn2
+
+
+class CompositeCrossValidator(CompositeValidator):
+    def __init__(self):
+        self.description = "Composed CrossValidator"
+        super().__init__()
+
+    def __call__(self, x, y):
+        return all([validate(x,y) for validate in self.validators])

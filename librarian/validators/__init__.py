@@ -56,3 +56,38 @@ def configure_validator(config):
             composite += validators[tag](*args)
         return composite
 
+
+def configure_xvalidator(config):
+    """ Create a cross validator using configuration
+
+        All the different validators given in config are composed into
+        one single Validator. The validations are done in order given.
+
+        Args:
+            config (list): List of config dicts to create the validator
+
+        Returns (Validator):
+            Validator class to validate data / labels.
+
+        Raises:
+            KeyError if configuration key is not found in options.
+    """
+    # No validato used, return just a dummy:
+    if len(config) < 0:
+        return crossvalidators.DummyCrossValidator()
+
+    # Single validator
+    elif len(config) == 1:
+        tag = config['validator']
+        args = config['args']
+        return xvalidators[tag](*args)
+
+    # Compose a validator using multiple validators:
+    else:
+        composite = crossvalidators.CompositeCrossValidator()
+        for xvalidator in config:
+            tag = config['validator']
+            args = config['args']
+            composite += xvalidators[tag](*args)
+        return composite
+

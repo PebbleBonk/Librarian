@@ -40,10 +40,13 @@ class CompositeValidator(Validator):
             *validators: validators to compose the validator from
     """
     def __init__(self, *validators):
-        self.validators = validators
+        self.description = "Composed CrossValidator"
+        self.validators = list(validators) if validators is not None else []
+        super().__init__()
 
     def  __add__(self, other):
         self.validators.append(other)
+        return self
 
     def __radd__(self, other):
         if other == 0:

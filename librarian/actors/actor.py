@@ -33,10 +33,13 @@ class CompositeActor(Actor):
             *validators: actors to compose the actor from
     """
     def __init__(self, *actors):
-        self.actors = actors
+        self.description = "Composed Actor"
+        self.actors = list(actors) if actors is not None else []
+        super().__init__()
 
     def  __add__(self, other):
         self.actors.append(other)
+        return self
 
     def __radd__(self, other):
         if other == 0:

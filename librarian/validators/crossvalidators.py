@@ -1,4 +1,4 @@
-from librarian.validators.validator import Validator
+from librarian.validators.validator import Validator, CompositeValidator
 from librarian.validators.exceptions import ValidationError, InitialisationError
 
 
@@ -42,9 +42,9 @@ class MacthFileNames:
 
 
 class CompositeCrossValidator(CompositeValidator):
-    def __init__(self):
+    def __init__(self, *xvalidators):
         self.description = "Composed CrossValidator"
-        super().__init__()
+        super().__init__(*xvalidators)
 
     def __call__(self, x, y):
         return all([validate(x,y) for validate in self.validators])

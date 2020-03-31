@@ -31,6 +31,30 @@ class Validator:
         #     print(f'\t{name} ({param.annotation.__name__})')
 
 
+class CompositeValidator(Validator):
+    """ Compose a combination of several validators
+
+        Checks the object agains every validator
+
+        Args:
+            *validators: validators to compose the validator from
+    """
+    def __init__(self, *validators):
+        self.validators = validators
+
+    def  __add__(self, other):
+        self.validators.append(other)
+
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        else:
+            return self.__add__(other)
+
+    def __call__(self, obj):
+        return all([validate(obj) for validate in self.validators])
+
+
 class DummyValidator(Validator):
     """ A dummy validator: does nothing, i.e. passes everything.
 

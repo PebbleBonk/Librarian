@@ -38,11 +38,12 @@ def configure_validator(config):
             KeyError if configuration key is not found in options.
     """
     # No validato used, return just a dummy:
-    if len(config) < 0:
+    if len(config) == 0:
         return validator.DummyValidator()
 
     # Single validator
     elif len(config) == 1:
+        config = config[0]
         tag = config['validator']
         args = config['args']
         return validators[tag](*args)
@@ -50,9 +51,9 @@ def configure_validator(config):
     # Compose a validator using multiple validators:
     else:
         composite = validator.CompositeValidator()
-        for validator in config:
-            tag = config['validator']
-            args = config['args']
+        for c in config:
+            tag = c['validator']
+            args = c['args']
             composite += validators[tag](*args)
         return composite
 
@@ -73,11 +74,12 @@ def configure_xvalidator(config):
             KeyError if configuration key is not found in options.
     """
     # No validato used, return just a dummy:
-    if len(config) < 0:
+    if len(config) == 0:
         return crossvalidators.DummyCrossValidator()
 
     # Single validator
     elif len(config) == 1:
+        config = config[0]
         tag = config['validator']
         args = config['args']
         return xvalidators[tag](*args)
@@ -85,9 +87,9 @@ def configure_xvalidator(config):
     # Compose a validator using multiple validators:
     else:
         composite = crossvalidators.CompositeCrossValidator()
-        for xvalidator in config:
-            tag = config['validator']
-            args = config['args']
+        for c in config:
+            tag = c['validator']
+            args = c['args']
             composite += xvalidators[tag](*args)
         return composite
 

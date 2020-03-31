@@ -30,20 +30,21 @@ def configure_actor(config):
             KeyError if configuration key is not found in options.
     """
     # No validato used, return just a dummy:
-    if len(config) < 0:
+    if len(config) == 0:
         return local_actors.DummyActor()
 
     # Single validator
     elif len(config) == 1:
-        tag = config['validator']
+        config = config[0]
+        tag = config['actor']
         args = config['args']
         return actors[tag](*args)
 
     # Compose a validator using multiple validators:
     else:
         composite = actors.CompositeActor()
-        for actor in config:
-            tag = config['validator']
-            args = config['args']
+        for c in config:
+            tag = c['actor']
+            args = c['args']
             composite += actors[tag](*args)
         return composite

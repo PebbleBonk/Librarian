@@ -14,13 +14,13 @@ class Validator:
         raise NotImplementedError("Inherited method not implemented")
 
     def __str__(self):
-        setup = self.__class__.__name__ +" with setup:\n"
+        setup = self.__class__.__name__ +" with setup:"
         for var, val in vars(self).items():
-            setup += f"\t{var}: {val}\n"
+            setup += f"\n\t{var}: {val}"
         return setup
 
     def __repr__(self):
-        return str(self).replace('\n', ' ').replace('\t', '')
+        return str(self).replace('\n', ', ').replace('\t', '')
 
     @classmethod
     def describe(cls):
@@ -31,7 +31,7 @@ class Validator:
         #     print(f'\t{name} ({param.annotation.__name__})')
 
 
-class CompositeValidator(Validator):
+class CompositeValidator:
     """ Compose a combination of several validators
 
         Checks the object agains every validator
@@ -40,9 +40,7 @@ class CompositeValidator(Validator):
             *validators: validators to compose the validator from
     """
     def __init__(self, *validators):
-        self.description = "Composed CrossValidator"
         self.validators = list(validators) if validators is not None else []
-        super().__init__()
 
     def  __add__(self, other):
         self.validators.append(other)
@@ -56,6 +54,15 @@ class CompositeValidator(Validator):
 
     def __call__(self, obj):
         return all([validate(obj) for validate in self.validators])
+
+    def __str__(self):
+        string = self.__class__.__name__ +" with Validators:"
+        for validator in self.validators:
+            string += "\n\t"+str(validator).replace('\n', '\n\t')
+        return string
+
+    def __repr__(self):
+        return str(self).replace('\n', ', ').replace('\t', '').strip()
 
 
 class DummyValidator(Validator):

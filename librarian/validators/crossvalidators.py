@@ -48,3 +48,10 @@ class CompositeCrossValidator(CompositeValidator):
 
     def __call__(self, x, y):
         return all([validate(x,y) for validate in self.validators])
+
+    def __str__(self):
+        string = self.__class__.__name__ +" with Cross Validators:\n"
+        for validator in self.validators:
+            string += "\t"+str(validator).replace('\n', '\n\t')
+        return string
+

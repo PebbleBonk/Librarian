@@ -113,8 +113,8 @@ def _createnew(INPUT_CONFIG, CROSS_VALID_CONFIG, LABEL_VALID_CONFIG,
     """ Better creation of stuffs
     """
     try:
-        data_type = INPUT_CONFIG["type"],
-        data_tag =  INPUT_CONFIG["tag"],
+        data_type = INPUT_CONFIG["type"]
+        data_tag =  INPUT_CONFIG["tag"]
     except KeyError as e:
         raise libex.InitialisationError(
             f"Invalid Input initialisation: {e}"

@@ -115,6 +115,10 @@ def create_librarian(datatype, datatag,
         abort(501, 'API call not implemented')
 
     print("\n\n~ Created a Librarian instance. ~")
+
+    print("[INPUT TYPE]:", str(datatype), '\n')
+    print("[INPUT TAG]:", str(datatag), '\n')
+    
     print("[LABEL VALIDATOR]:", str(label_validator), '\n')
     print("[DATA VALIDATOR]:", str(data_validator), '\n')
     print("[CROSS VALIDATOR]:", str(cross_validator), '\n')

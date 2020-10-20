@@ -49,9 +49,15 @@ def create_librarian(datatype, datatag,
             return _build_cors_prelight_response()
 
         labels = parse_url_args(request.args)
-        if datatype=="file" and request.files is not None:
+        if datatype=="file":
+            if request.files is None:
+                print("[INPUT ERROR]: No files in request", file=sys.stderr)
+                _abort(406, "Invalid input data") 
             data = request.files.get(datatag, 0)
-        elif datatype=='base64' and request.form:
+        elif datatype=='base64':
+            if not request.form:
+                print("[INPUT ERROR]: No form in request", file=sys.stderr)
+                _abort(406, "Invalid input data") 
             raw64 = request.form[datatag]
             # Make sure we don't have any nasty tags:
             raw64 = raw64.split(',')[-1]
@@ -59,11 +65,14 @@ def create_librarian(datatype, datatag,
                 stream=BytesIO(base64.b64decode(raw64)),
                 filename=labels.get('filename', 'input')
             )
-        elif datatype=="json" and request.json is not None:
+        elif datatype=="json":
+            if request.json is None:
+                print("[INPUT ERROR]: No json in request", file=sys.stderr)
+                _abort(406, "Invalid input data") 
             # default value of no data tag: get full json from request:
             data = request.json.get(datatag, 0) if datatag else request.json
         else:
-            print("[INPUT ERROR]: Unsupported data:", datatype, file=sys.stderr)
+            print("[INPUT ERROR]: Unexpected datatype: '"+datatype+"'", file=sys.stderr)
             _abort(406, "Invalid data type")
 
 

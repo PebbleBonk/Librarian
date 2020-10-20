@@ -101,7 +101,7 @@ def create(dotenv=False, json=False, test=False):
             _fail_config(f'Environment variable not set: {e}')
             return
         except libex.EnvironmentVariableLoadException as e:
-            _fail_config(f'Error loading enfironment configs: {e}')
+            _fail_config(f'Error loading environment configs: {e}')
             return
 
     # creating_kwargs = utils.parse_config_dicts(**config_kwargs)
